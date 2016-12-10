@@ -11,6 +11,10 @@
 
 # usage
 
+一个可选参数
+
+`-m` `--match`: 用来匹配自己回复的内容，如果匹配到就删，匹配不到就pass，默认值是`.*`
+
 一共有3次输入
 
 1. 刚开始输入cookies,注意格式: `Cookie: xxx=xxx; ... `直接从chrome里访问以下tieba.baidu.com然后把request headers中view source,把cookie一行复制过来就可以
@@ -21,4 +25,4 @@
 
 # todo
 
-有个错误码不知什么情况，230308，据说是tbs不对。。
+有个错误码不知什么情况，230308，据说是tbs不对，但是这里获取的tbs从源码里找的。。也不造为啥不对。。

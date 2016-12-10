@@ -9,8 +9,12 @@ import lxml
 import json
 import os
 import time
+from optparse import OptionParser
+
+
 user_id = -1
 username = ''
+match = '.*'
 
 def log(text):
     s = '[%s] %s' % (str(datetime.now()), text)
@@ -70,7 +74,6 @@ def get_tie(r, user_id):
     # print(json.dumps(tie_list, ensure_ascii=False, indent=4))
 
 def get_reply(r, user_id):
-
     reply_list = []
     page = 1
     while(1):
@@ -101,8 +104,11 @@ def get_reply(r, user_id):
                 'bar_name': bar_name,
                 'bar_url': bar_url,
             }
-            log('add new reply: [%s][%s]' % (reply_content, tie_name))
-            reply_list.append(new_reply)
+            if re.match(match, reply_content):
+                log('add new reply: [%s][%s]' % (reply_content, tie_name))
+                reply_list.append(new_reply)
+            else:
+                log('NOT match, pass: [%s][%s]' % (reply_content, tie_name))
         page += 1
     return reply_list
     # print(json.dumps(reply_list, ensure_ascii=False, indent=4))
@@ -234,7 +240,6 @@ def start(r, input_file=True):
             open('clean_tieba_tie_list.json', 'w').write(json.dumps(tie_list, ensure_ascii=False, indent=4))
     else:
         if os.path.exists('clean_tieba_tie_fail.json'):
-
             log('load tie failed from file')
             tie_list = json.load(open('clean_tieba_tie_fail.json', 'r'))
         else:
@@ -263,9 +268,11 @@ def start(r, input_file=True):
     tie_fail = []
     reply_count = len(reply_list)
     reply_fail = []
-
+    if tie_count == 0 and reply_count == 0:
+        log('done')
+        exit()
     for i in range(tie_count):
-        log('tie: %d/%d' % (i, tie_count))
+        log('tie: %d/%d' % (i + 1, tie_count))
         if del_tie(r, tie_list[i], username):
             continue
         else:
@@ -273,7 +280,7 @@ def start(r, input_file=True):
     open('clean_tieba_tie_fail.json', 'w').write(json.dumps(tie_fail, ensure_ascii=False, indent=4))
 
     for i in range(reply_count):
-        log('reply: %d/%d' % (i, reply_count))
+        log('reply: %d/%d' % (i + 1, reply_count))
         if del_reply(r, reply_list[i], username):
             continue
         else:
@@ -282,6 +289,15 @@ def start(r, input_file=True):
 
 
 if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option('-m', '--match',
+                      help="give me re format, if match in reply, I will delete")
+    (options, args) = parser.parse_args()
+    if options.match is not None:
+        match = options.match
+        log('match had set: (%s)' % match)
+    else:
+        log('match had set: (%s)' % match)
     r = requests.Session()
     login(r)
     start(r)
