@@ -30,7 +30,7 @@ def error_check(text):
             return True
         elif _['err_code'] == 220034:
             log('Failed: 您的操作太频繁了')
-            return True
+            return 'exit'
         elif _['err_code'] == 260005:
             log('Failed: Cookies失效')
             return False
@@ -154,7 +154,7 @@ def del_tie(r, reply, username):
     else:
         pass
     data = {
-        'ie': re.findall('\"?charset\"?\s*:\s*[\'\"]?(.*?)[\'\"]', html)[0],
+        'ie': re.findall('\"?charset\"?\s*:\s*[\'\"]?(.*?)[\'\"]', html)[0].lower(),
         # 'tbs': re.findall('"tbs"  : "([\d\w]+)"', html)[0],
         'tbs': re.findall('\"?tbs\"?\s*:\s*[\'\"]?([\w\d]+)[\'\"]', html)[0],
         'kw': re.findall('name="kw" value="(.*?)"', html)[0].encode().decode(),
@@ -191,7 +191,7 @@ def del_reply(r, reply, username):
     else:
         pass
     data = {
-        'ie': re.findall('\"?charset\"?\s*:\s*[\'\"]?(.*?)[\'\"]', html)[0],
+        'ie': re.findall('\"?charset\"?\s*:\s*[\'\"]?(.*?)[\'\"]', html)[0].lower(),
         'tbs': re.findall('\"?tbs\"?\s*:\s*[\'\"]?([\w\d]+)[\'\"]', html)[0],
         'kw': re.findall('name="kw" value="(.*?)"', html)[0].encode().decode(),
         'fid': re.findall("fid:'(\d+)'", html)[0],
@@ -273,18 +273,26 @@ def start(r, input_file=True):
         exit()
     for i in range(tie_count):
         log('tie: %d/%d' % (i + 1, tie_count))
-        if del_tie(r, tie_list[i], username):
-            continue
-        else:
+        status = del_tie(r, tie_list[i], username)
+        if status == 'exit':
+            print('达到每日上限，等待下一轮')
+            break
+        elif status == False:
             tie_fail.append(tie_list[i])
+        else:
+            pass
     open('clean_tieba_tie_fail.json', 'w').write(json.dumps(tie_fail, ensure_ascii=False, indent=4))
 
     for i in range(reply_count):
         log('reply: %d/%d' % (i + 1, reply_count))
-        if del_reply(r, reply_list[i], username):
-            continue
-        else:
+        status = del_reply(r, reply_list[i], username)
+        if status == 'exit':
+            print('达到每日上限，等待下一轮')
+            break
+        elif status == False:
             reply_fail.append(reply_list[i])
+        else:
+            pass
     open('clean_tieba_reply_fail.json', 'w').write(json.dumps(reply_fail, ensure_ascii=False, indent=4))
 
 
@@ -302,7 +310,7 @@ if __name__ == '__main__':
     login(r)
     start(r)
     while(1):
-        sleep_hours = 12
+        sleep_hours = 4
         log('will sleep %d hours' % (sleep_hours))
         for i in range(0, sleep_hours, 1):
             log('start after %d hours' % (sleep_hours - i))
