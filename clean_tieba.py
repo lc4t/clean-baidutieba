@@ -169,7 +169,8 @@ class Tieba:
             'delete_my_post': 1,
             'delete_my_thread' : 0,
             'is_vipdel': 0,
-            'pid': re.findall('pid=(\d+)&', reply['tie_url'])[0],
+            # 'pid': re.findall('pid=(\d+)&', reply['tie_url'])[0],
+            'pid': re.findall('cid=(\d+)#', reply['reply_url'])[0],
             'is_finf': 'false'
         }
         url = 'https://tieba.baidu.com/f/commit/post/delete'
@@ -205,7 +206,8 @@ class Tieba:
             'delete_my_post': 1,
             'delete_my_thread' : 0,
             'is_vipdel': 0,
-            'pid': re.findall('pid=(\d+)&', reply['reply_url'])[0],
+            # 'pid': re.findall('pid=(\d+)&', reply['reply_url'])[0],
+            'pid': re.findall('cid=(\d+)#', reply['reply_url'])[0],
             'is_finf': 'false'
         }
         url = 'https://tieba.baidu.com/f/commit/post/delete'
