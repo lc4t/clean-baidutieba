@@ -277,24 +277,36 @@ class Tieba:
         if tie_count == 0 and reply_count == 0:
             log('done')
             exit()
+
+        tie_is_max = False
         for i in range(tie_count):
             log('tie: %d/%d' % (i + 1, tie_count))
+            if tie_is_max:
+                tie_fail.append(tie_list[i])
+                continue
             status = self.del_tie(tie_list[i])
             if status == 'exit':
                 print('达到每日上限，等待下一轮')
-                break
+                tie_is_max = True
+                tie_fail.append(tie_list[i])
             elif status == False:
                 tie_fail.append(tie_list[i])
             else:
                 pass
         open('clean_tieba_tie_fail.json', 'w').write(json.dumps(tie_fail, ensure_ascii=False, indent=4))
 
+
+        reply_is_max = False
         for i in range(reply_count):
             log('reply: %d/%d' % (i + 1, reply_count))
+            if reply_is_max:
+                reply_fail.append(reply_list[i])
+                continue
             status = self.del_reply(reply_list[i])
             if status == 'exit':
                 print('达到每日上限，等待下一轮')
-                break
+                reply_is_max = True
+                reply_fail.append(reply_list[i])
             elif status == False:
                 reply_fail.append(reply_list[i])
             else:
