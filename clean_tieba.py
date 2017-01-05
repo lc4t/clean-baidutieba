@@ -196,6 +196,9 @@ class Tieba:
             return False
         else:
             pass
+        pid = re.findall('cid=(\d+)#', reply['reply_url'])[0]
+        if pid == '0':
+             pid = re.findall('pid=(\d+)&', reply['reply_url'])[0]
         data = {
             'ie': re.findall('\"?charset\"?\s*:\s*[\'\"]?(.*?)[\'\"]', html)[0].lower(),
             'tbs': re.findall('\"?tbs\"?\s*:\s*[\'\"]?([\w\d]+)[\'\"]', html)[0],
@@ -207,7 +210,7 @@ class Tieba:
             'delete_my_thread' : 0,
             'is_vipdel': 0,
             # 'pid': re.findall('pid=(\d+)&', reply['reply_url'])[0],
-            'pid': re.findall('cid=(\d+)#', reply['reply_url'])[0],
+            'pid': pid,
             'is_finf': 'false'
         }
         url = 'https://tieba.baidu.com/f/commit/post/delete'
