@@ -236,8 +236,7 @@ class Tieba:
         url = 'https://tieba.baidu.com/home/profile?un=%s' % self.username
         log('-->%s' % url)
         _ = self.r.get(url)
-        self.user_id = re.findall('/i/(\d+)/my_tie', _.text)[0]
-
+        self.user_id = re.findall('user_id":(\d+)', _.text)[0]
 
     def start(self, input_file=True):
         if input_file:
