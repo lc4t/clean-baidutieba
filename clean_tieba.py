@@ -23,7 +23,14 @@ class Tieba:
     match = '.*'
     r = requests.Session()
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Referer': 'http://tieba.baidu.com/',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Origin': 'http://tieba.baidu.com',
     }
 
     def error_check(self, text):
@@ -173,11 +180,23 @@ class Tieba:
             'pid': re.findall('cid=(\d+)#', reply['tie_url'])[0],
             'is_finf': 'false'
         }
+        if data['pid'] == '0':
+            data['pid'] = re.findall('pid=(\d+)', reply['tie_url'])[0]
+
         url = 'https://tieba.baidu.com/f/commit/post/delete'
         log('-->%s' % url)
         log('delete reply')
-        _ = self.r.post(url, data=data, headers=self.headers)
+        h = self.headers
+
+        h.update({'Referer': reply['tie_url']})
+        log(data)
+
+        _ = self.r.post(url, data=data, headers=h)
         log(_.status_code)
+
+        # log(_.content.decode())
+        # log(_.request.headers)
+        # exit(0)
         return self.error_check(_.text)
 
 
